@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # POSTGRESQL - Shared Database
+  # ============================================
+  db_plm:
+    image: postgres:15-alpine
+    container_name: plm_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_plm_data:/var/lib/postgresql/data
+      - ./backups/postgres:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - plm_network
+
+  # ============================================
+  # INVIRTREE - BOM/Inventory/Procurement
+  # ============================================
+  inventree:
+    image: inventree/inventree:latest
+    container_name: plm_inventree
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - INVENTREE_DB_NAME=${POSTGRES_DB}
+      - INVENTREE_DB_USER=${POSTGRES_USER}
+      - INVENTREE_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - INVENTREE_DB_HOST=db_plm
+      - INVENTREE_SECRET_KEY=${INVENTREE_SECRET_KEY}
+      - INVENTREE_SITE_URL=http://${HOST_IP}:8000
+      - INVENTREE_ALLOWED_HOSTS=${HOST_IP},localhost,127.0.0.1
+      - INVENTREE_EMAIL_HOST=${EMAIL_HOST:-smtp.gmail.com}
+      - INVENTREE_EMAIL_PORT=${EMAIL_PORT:-587}
+      - INVENTREE_EMAIL_USERNAME=${EMAIL_USERNAME:-}
+      - INVENTREE_EMAIL_PASSWORD=${EMAIL_PASSWORD:-}
+      - INVENTREE_EMAIL_TLS=${EMAIL_USE_TLS:-True}
+      - INVENTREE_EMAIL_FROM=${EMAIL_FROM:-noreply@inventree.local}
+    volumes:
+      - inventree_data:/home/inventree/data
+      - inventree_db:/home/inventree/db
+      - ./imports/inventree:/home/inventree/import
+    depends_on:
+      db_plm:
+        condition: service_healthy
+    networks:
+      - plm_network
+
+  # ============================================
+  # ODOO - Project Management/Tasks/Gantt
+  # ============================================
+  odoo:
+    image: odoo:17.0
+    container_name: plm_odoo
+    restart: unless-stopped
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    environment:
+      - HOST=${HOST_IP}
+      - PORT=8069
+      - MASTER_PASSWORD=${ODOO_MASTER_PASSWORD}
+      - DATABASE=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_HOST=db_plm
+      - DB_PORT=5432
+      - ADDONS_PATH=/mnt/extra-addons
+      - INVERSE_URL=http://${HOST_IP}:8069
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - odoo_log:/var/log/odoo
+      - ./extra-addons:/mnt/extra-addons
+      - ./imports/odoo:/import
+    depends_on:
+      db_plm:
+        condition: service_healthy
+    networks:
+      - plm_network
+
+  # ============================================
+  # NGINX - Reverse Proxy (Optional)
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: plm_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - inventree
+      - odoo
+    networks:
+      - plm_network
+    profiles:
+      - with-nginx
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  plm_network:
+    driver: bridge
+
+# ============================================
+# VOLUMES - Persistent Data
+# ============================================
+volumes:
+  postgres_plm_data:
+    name: plm_postgres_data
+  inventree_data:
+    name: plm_inventree_data
+  inventree_db:
+    name: plm_inventree_db
+  odoo_data:
+    name: plm_odoo_data
+  odoo_log:
+    name: plm_odoo_logs

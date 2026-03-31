@@ -1,0 +1,5 @@
+# Keep this directory in git
+# Place SSL certificates here for HTTPS (optional)
+# Required files:
+# - fullchain.pem (certificate + intermediates)
+# - privkey.pem (private key)
