@@ -1,295 +1,174 @@
-# Brahm-ERP PLM Stack
+# Hardware Portal - Complete Setup
 
-## Complete Free & Open Source PLM Solution for Hardware Teams
+A professional web portal for hardware project management with full team collaboration, BOM management, cost comparison, and GitHub integration — all running in Docker.
 
-A production-ready, local network PLM stack combining **InvenTree** (BOM/Inventory/Procurement) and **Odoo** (Project Management/Tasks/Gantt Charts) for 4-person hardware teams.
-
----
-
-## 🎯 What You Get
-
-| Application | Purpose | Port | URL |
-|-------------|---------|------|-----|
-| **InvenTree** | Bill of Materials, Inventory, Procurement | 8000 | http://localhost:8000 |
-| **Odoo** | Project Tasks, Gantt, CRM, Reviews | 8069 | http://localhost:8069 |
-| **PostgreSQL** | Shared Database | 5432 | (Internal) |
-
----
-
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
-- Windows 10/11 with Docker Desktop installed
-- 8GB+ RAM recommended
-- 20GB+ free disk space
+- Docker Desktop (already installed)
+- Windows 10/11 or Linux/Mac
 
-### One-Click Setup
+### Run the Portal
 
-1. **Open PowerShell as Administrator**
-   ```powershell
-   cd C:\path\to\plm-stack
-   .\setup.ps1
-   ```
-
-2. **Wait for services to start** (5-10 minutes first time)
-
-3. **Access the applications:**
-   - InvenTree: http://localhost:8000
-   - Odoo: http://localhost:8069
-
----
-
-## 🔧 Manual Setup (Alternative)
-
-```powershell
-# 1. Create .env from template
-copy .env.example .env
-
-# 2. Edit .env with your settings
-notepad .env
-
-# 3. Get your IP address
-ipconfig
-
-# 4. Start services
-docker compose up -d
-
-# 5. Check status
-docker compose ps
+**Windows:**
+Double-click `START.bat` or run:
+```bash
+.\START.bat
 ```
 
----
-
-## 🌐 Accessing from Team PCs
-
-### Find Your Local IP
-```powershell
-ipconfig
-```
-Look for `IPv4 Address` under your active network adapter (e.g., `192.168.1.100`)
-
-### Team Access URLs
-Replace `YOUR_IP` with your actual IP:
-
-| Service | URL |
-|---------|-----|
-| InvenTree | http://YOUR_IP:8000 |
-| Odoo | http://YOUR_IP:8069 |
-
-### Firewall Setup (if needed)
-```powershell
-# Allow ports through Windows Firewall
-netsh advfirewall firewall add rule name="InvenTree" dir=in action=allow protocol=TCP localport=8000
-netsh advfirewall firewall add rule name="Odoo" dir=in action=allow protocol=TCP localport=8069
+**Linux/Mac:**
+```bash
+bash START.sh
 ```
 
----
+The portal will be available at:
+- **Frontend:** http://localhost:3000
+- **Backend API:** http://localhost:5000
+- **Database:** localhost:5432
 
-## 📋 First-Time Setup Checklist
+### First Time Setup
 
-### InvenTree Setup
-1. Navigate to http://localhost:8000
-2. Create admin account
-3. Configure company settings
-4. Import parts from Fusion 360 (see integration-guide.md)
-5. Set up Digi-Key plugin for procurement
+1. Open http://localhost:3000 in your browser
+2. Click "Sign up" and create your admin account
+3. Login with your credentials
+4. Go to **Team** tab to add team members
+5. Use **Tasks** tab to assign work
+6. Use **BOM** tab to upload and manage BOMs
 
-### Odoo Setup
-1. Navigate to http://localhost:8069
-2. Create database (e.g., `plm_db`)
-3. Install apps:
-   - ✅ Project Management
-   - ✅ Tasks (if separate)
-   - ✅ CRM (for customer tracking)
-4. Create team members (Admin: Settings → Users → Create)
-5. Set up Gantt project structure
+## Stop the Portal
 
-### Team Collaboration Features
-- **User Management**: Admin creates/controls all team user accounts
-- **Task Assignment**: Assign tasks to any team member
-- **Photo Uploads**: Attach images to tasks for documentation
-- **Email Notifications**: Get notified when assigned tasks change
-- **Mobile Access**: Use Odoo app on phones for on-the-go updates
-
----
-
-## 💾 Backup & Restore
-
-### Manual Backup
-```powershell
-# Backup InvenTree data
-docker exec plm_inventree backup.sh
-
-# Backup PostgreSQL
-docker exec -t plm_postgres pg_dump -U plm_admin plm_db > backup.sql
+**Windows:**
+```bash
+.\STOP.bat
 ```
 
-### Auto-Backup (Schedule in Windows Task Scheduler)
-```powershell
-# Create backup script
-@echo off
-for /f "tokens=2 delims==" %%a in ('wmic OS Get localdatetime /value') do set "dt=%%a"
-set "datestamp=%dt:~0,8%-%dt:~8,6%"
-docker exec -t plm_postgres pg_dump -U plm_admin plm_db > "backups/postgres/plm_backup_%datestamp%.sql"
+**Linux/Mac:**
+```bash
+bash STOP.sh
 ```
 
-### Restore from Backup
-```powershell
-# Stop services
-docker compose down
-
-# Restore database
-docker exec -i plm_postgres psql -U plm_admin plm_db < backup.sql
-
-# Restart services
-docker compose up -d
+Or:
+```bash
+docker-compose down
 ```
 
----
-
-## 🔄 Common Commands
-
-```powershell
-# View logs
-docker compose logs -f
-docker compose logs -f inventree  # Just InvenTree
-docker compose logs -f odoo        # Just Odoo
-
-# Restart services
-docker compose restart
-
-# Stop services
-docker compose down
-
-# Update images
-docker compose pull
-docker compose up -d
-
-# SSH into container
-docker exec -it plm_inventree bash
-docker exec -it plm_odoo bash
-docker exec -it plm_postgres psql -U plm_admin
-
-# Check resource usage
-docker stats
-```
-
----
-
-## 🧹 Cleanup & Reset
-
-### Remove all data (CAREFUL!)
-```powershell
-docker compose down -v
-docker volume rm plm_postgres_data plm_inventree_data plm_inventree_db plm_odoo_data
-```
-
-### Fresh start keeping .env
-```powershell
-docker compose down
-docker compose up -d
-```
-
----
-
-## 🛠️ Troubleshooting
-
-### Docker Desktop won't start
-1. Enable WSL2: `wsl --install`
-2. Update Docker Desktop to latest version
-3. Enable "Use WSL 2 based engine" in Docker settings
-
-### Services won't start
-```powershell
-# Check logs
-docker compose logs
-
-# Check port conflicts
-netstat -ano | findstr "8000 8069"
-```
-
-### Slow performance
-1. Increase Docker Desktop memory to 4GB+
-2. Increase CPU cores
-3. Use SSD for Docker data location
-
-### Database connection errors
-```powershell
-# Wait longer for PostgreSQL
-Start-Sleep -Seconds 30
-
-# Check if PostgreSQL is healthy
-docker compose ps
-```
-
----
-
-## 📊 System Requirements
-
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| RAM | 6GB | 8GB+ |
-| CPU | 2 cores | 4 cores |
-| Storage | 15GB | 30GB+ |
-| OS | Windows 10 | Windows 11 |
-
----
-
-## 📁 Folder Structure
+## Project Structure
 
 ```
 plm-stack/
-├── docker-compose.yml      # Service definitions
-├── .env                    # Configuration (your secrets)
-├── .env.example            # Template
-├── setup.ps1               # One-click setup script
-├── README.md               # This file
-├── nginx.conf              # Reverse proxy config
-├── integration-guide.md    # Fusion/DigiKey/etc guides
-├── backups/                # Database backups
-│   ├── postgres/
-│   ├── inventree/
-│   └── odoo/
-├── imports/                # CSV import files
-│   ├── inventree/
-│   └── odoo/
-├── extra-addons/           # Custom Odoo modules
-└── ssl/                    # SSL certificates (optional)
+├── backend/                 # Flask API backend
+│   ├── app.py              # Main application (all routes & models)
+│   ├── requirements.txt     # Python dependencies
+│   └── Dockerfile          # Backend container
+├── frontend/               # React + Vite frontend
+│   ├── src/
+│   │   ├── App.jsx         # Main React component
+│   │   ├── App.css         # Styling
+│   │   └── main.jsx        # Entry point
+│   ├── package.json        # NPM dependencies
+│   ├── vite.config.js      # Vite config
+│   ├── index.html          # HTML template
+│   └── Dockerfile          # Frontend container
+├── docker-compose.yml      # Docker services configuration
+├── .env                    # Environment variables
+├── START.bat / START.sh    # Quick start script
+└── STOP.bat / STOP.sh      # Stop script
 ```
 
----
+## Features
 
-## 🔒 Security Notes
+✅ **User Management** - Admin creates team members, assigns tasks  
+✅ **Task Management** - Create, assign, and track tasks with priorities  
+✅ **BOM Management** - Upload CSV BOMs, query pricing from suppliers  
+✅ **Cost Comparison** - Automatically compare part costs  
+✅ **GitHub Integration** - Track commits and releases  
+✅ **Order Placement** - Direct ordering framework (JLC, Lion Circuits)  
+✅ **Professional Dashboard** - Clean, responsive UI
 
-1. **Change default passwords** in .env immediately
-2. Use strong PostgreSQL passwords (20+ characters)
-3. Keep Docker images updated
-4. For internet-facing access, add SSL certificates
-5. Regularly backup your data
+## API Endpoints
 
----
+### Authentication
+- `POST /api/auth/register` - Sign up
+- `POST /api/auth/login` - Login
+- `GET /api/auth/me` - Get current user
 
-## 📞 Resources
+### Tasks
+- `GET /api/tasks` - List tasks
+- `POST /api/tasks` - Create task (admin only)
+- `PUT /api/tasks/<id>` - Update task
 
-- **InvenTree Docs**: https://inventree.readthedocs.io/
-- **Odoo Docs**: https://www.odoo.com/documentation/
-- **Docker Desktop**: https://docs.docker.com/desktop/windows/
-- **Digi-Key Plugin**: https://inventree.org/forum/
+### BOMs
+- `GET /api/boms` - List BOMs
+- `POST /api/boms/upload` - Upload BOM CSV file
+- `GET /api/boms/<id>/parts` - Get BOM parts with pricing
 
----
+### Admin
+- `GET /api/admin/users` - List users (admin only)
+- `POST /api/admin/users` - Add user (admin only)
+- `DELETE /api/admin/users/<id>` - Delete user (admin only)
 
-## ✅ Production Checklist
+### GitHub
+- `POST /api/github/sync` - Sync GitHub commits
 
-Before going live with your team:
+## Environment Configuration
 
-- [ ] Change all default passwords
-- [ ] Configure email notifications
-- [ ] Set up automated backups
-- [ ] Test restore from backup
-- [ ] Train team members
-- [ ] Document company-specific workflows
-- [ ] Set up SSL if exposing to internet
+Edit `.env` to configure API keys and database credentials:
 
----
+```env
+DB_USER=portal_user
+DB_PASSWORD=portal_pass
+DB_NAME=portal_db
+JWT_SECRET_KEY=your-secret-key-here
+GITHUB_TOKEN=your_github_token
+OCTOPARTS_API_KEY=your_key
+JLC_API_KEY=your_key
+LION_API_KEY=your_key
+```
 
-**Built with ❤️ for hardware teams who want full control of their data.**
+## Database Models
+
+- **User**: email, password, full_name, is_admin, github_username, jlc_username, lion_username
+- **Task**: title, description, assigned_to (FK), status, priority, due_date, github_issue_url
+- **BOM**: name, project_name, uploaded_by (FK), created_at, parts (relationship)
+- **BOMPart**: mpn, quantity, octoparts_price, jlc_price, lion_price, best_price, best_supplier
+
+## Troubleshooting
+
+**Ports already in use:**
+```bash
+docker-compose down
+```
+
+**View logs:**
+```bash
+docker-compose logs -f
+```
+
+**View specific service logs:**
+```bash
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f db
+```
+
+**Reset database:**
+```bash
+docker volume rm plm-stack_portal_postgres_data
+docker-compose up -d
+```
+
+## Notes
+
+- First user created becomes admin
+- JWT tokens expire in 30 days
+- PostgreSQL data persists in Docker volume
+- All containers auto-restart on failure
+- Production-ready with CORS, security headers, and rate limiting placeholders
+
+## Next Steps
+
+1. Set JWT_SECRET_KEY in .env to a strong random value
+2. Add API keys for GitHub, OctoParts, JLC, and Lion Circuits
+3. Customize task priorities and statuses as needed
+4. Add more team members through the admin panel
+5. Start uploading and managing BOMs

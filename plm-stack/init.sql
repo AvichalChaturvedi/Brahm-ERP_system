@@ -1,0 +1,2 @@
+CREATE DATABASE portal_db;
+GRANT ALL PRIVILEGES ON DATABASE portal_db TO portal_user;
