@@ -16,7 +16,7 @@ export const LoginPage: React.FC = () => {
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={[]}
-          redirectTo={`${window.location.origin}/dashboard`}
+          redirectTo={`${window.location.origin}${import.meta.env.VITE_BASE_URL}`}
         />
       </div>
     </div>
