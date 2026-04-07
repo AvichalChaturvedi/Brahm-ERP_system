@@ -7,7 +7,7 @@ export default defineConfig({
   // For GitHub Pages deployment: use your repo name
   // If deployed to https://username.github.io/hardware-erp/, set base to '/hardware-erp/'
   // If deployed to root (username.github.io), set base to '/'
-  base: process.env.VITE_BASE_URL || '/hardware-erp/',
+  base: process.env.VITE_BASE_URL || '/Brahm-ERP_system/',
   server: {
     port: 5173,
     strictPort: false,
