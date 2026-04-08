@@ -10,8 +10,6 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuthStore();
-  if (!user) return <Navigate to="/login" />;
   return <>{children}</>;
 };
 
@@ -71,7 +69,29 @@ const App: React.FC = () => {
   }, [setUser, setProfile, setLoading]);
 
   if (!user) {
-    return <LoginPage />;
+    return (
+      <Router>
+        <div className="flex">
+          <Sidebar />
+          <div className="flex-1 ml-0 md:ml-64">
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/:projectId" element={<ProjectDetailsPage />} />
+              <Route path="/tasks" element={<div className="p-8">Tasks Page Coming Soon</div>} />
+              <Route path="/qa" element={<div className="p-8">QA/QC Module Coming Soon</div>} />
+              <Route path="/firmware" element={<div className="p-8">Firmware Module Coming Soon</div>} />
+              <Route path="/uiux" element={<div className="p-8">UI/UX Module Coming Soon</div>} />
+              <Route path="/pcb" element={<div className="p-8">PCB Engineering Module Coming Soon</div>} />
+              <Route path="/bom" element={<div className="p-8">BOM & Procurement Module Coming Soon</div>} />
+              <Route path="/documents" element={<div className="p-8">Documents Module Coming Soon</div>} />
+              <Route path="/settings" element={<div className="p-8">Settings Coming Soon</div>} />
+              <Route path="/login" element={<LoginPage />} />
+            </Routes>
+          </div>
+        </div>
+      </Router>
+    );
   }
 
   return (
