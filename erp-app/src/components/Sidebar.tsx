@@ -13,8 +13,7 @@ import {
   Settings,
   LogOut,
 } from 'lucide-react';
-import { useUIStore, useAuthStore } from '../store';
-import { supabase } from '../services/supabase';
+import { useUIStore } from '../store';
 
 interface NavItem {
   label: string;
@@ -37,12 +36,10 @@ const navItems: NavItem[] = [
 
 export const Sidebar: React.FC = () => {
   const { sidebarOpen } = useUIStore();
-  const { logout } = useAuthStore();
   const location = useLocation();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    logout();
+  const handleLogout = () => {
+    // No-op logout for demo
   };
 
   return (

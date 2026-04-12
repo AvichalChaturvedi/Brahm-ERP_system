@@ -3,66 +3,97 @@ import { useParams } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Topbar } from '../components/Topbar';
 import { Card, Button, EmptyState, LoadingSpinner, Input, Select, StatusBadge } from '../components/UI';
-import { supabase } from '../services/supabase';
-import { useAuthStore } from '../store';
-import { useTasks, useMilestones } from '../hooks';
+
+const MOCK_PROJECTS: Record<string, any> = {
+  'proj-001': {
+    id: 'proj-001',
+    name: 'Reactor Controller V2',
+    description: 'Advanced temperature and pressure monitoring for nuclear reactors',
+    status: 'in_progress',
+    start_date: '2025-01-15',
+    target_date: '2025-06-30',
+  },
+  'proj-002': {
+    id: 'proj-002',
+    name: 'Safety System Upgrade',
+    description: 'Emergency shutdown mechanism redesign',
+    status: 'planning',
+    start_date: '2025-02-01',
+    target_date: '2025-07-15',
+  },
+};
+
+const MOCK_TASKS: any[] = [
+  {
+    id: 'task-001',
+    project_id: 'proj-001',
+    title: 'Design PCB layout',
+    status: 'in_progress',
+    priority: 'high',
+    due_date: '2025-03-15',
+  },
+  {
+    id: 'task-002',
+    project_id: 'proj-001',
+    title: 'Firmware integration',
+    status: 'not_started',
+    priority: 'critical',
+    due_date: '2025-04-01',
+  },
+];
+
+const MOCK_MILESTONES: any[] = [
+  {
+    id: 'mile-001',
+    project_id: 'proj-001',
+    name: 'PCB Prototype Complete',
+    target_date: '2025-03-30',
+  },
+  {
+    id: 'mile-002',
+    project_id: 'proj-001',
+    name: 'Testing Phase Start',
+    target_date: '2025-05-01',
+  },
+];
 
 export const ProjectDetailsPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const { profile } = useAuthStore();
   const [project, setProject] = useState<any>(null);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [milestones, setMilestones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewTask, setShowNewTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState('medium');
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
 
-  const { tasks, loading: tasksLoading } = useTasks(projectId);
-  const { milestones } = useMilestones(projectId);
-
   useEffect(() => {
-    const fetchProject = async () => {
-      if (!projectId) return;
-      try {
-        const { data, error } = await supabase
-          .from('projects')
-          .select('*')
-          .eq('id', projectId)
-          .single();
-        if (error) throw error;
-        setProject(data);
-      } catch (err) {
-        console.error('Error fetching project:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProject();
+    if (!projectId) return;
+    
+    const proj = MOCK_PROJECTS[projectId] || MOCK_PROJECTS['proj-001'];
+    setProject(proj);
+    setTasks(MOCK_TASKS.filter((t) => t.project_id === (projectId || 'proj-001')));
+    setMilestones(MOCK_MILESTONES.filter((m) => m.project_id === (projectId || 'proj-001')));
+    setLoading(false);
   }, [projectId]);
 
-  const handleCreateTask = async () => {
-    if (!newTaskTitle.trim() || !projectId || !profile?.id) return;
+  const handleCreateTask = () => {
+    if (!newTaskTitle.trim()) return;
 
-    try {
-      const { error } = await supabase.from('tasks').insert([
-        {
-          project_id: projectId,
-          title: newTaskTitle,
-          priority: newTaskPriority,
-          due_date: newTaskDueDate || null,
-          status: 'not_started',
-          created_by: profile.id,
-        },
-      ]);
+    const newTask = {
+      id: `task-${Date.now()}`,
+      project_id: projectId || 'proj-001',
+      title: newTaskTitle,
+      priority: newTaskPriority,
+      due_date: newTaskDueDate || null,
+      status: 'not_started',
+    };
 
-      if (error) throw error;
-      setNewTaskTitle('');
-      setNewTaskDueDate('');
-      setShowNewTask(false);
-    } catch (err) {
-      console.error('Error creating task:', err);
-    }
+    setTasks([...tasks, newTask]);
+    setNewTaskTitle('');
+    setNewTaskDueDate('');
+    setShowNewTask(false);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -130,9 +161,7 @@ export const ProjectDetailsPage: React.FC = () => {
                 </div>
               )}
 
-              {tasksLoading ? (
-                <LoadingSpinner />
-              ) : tasks.length === 0 ? (
+              {tasks.length === 0 ? (
                 <EmptyState title="No tasks yet" description="Create your first task to get started" />
               ) : (
                 <div className="space-y-3">
