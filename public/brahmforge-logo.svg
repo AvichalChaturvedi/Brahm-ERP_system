@@ -1,0 +1,6 @@
+<svg width="180" height="36" viewBox="0 0 180 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="1" y="1" width="34" height="34" rx="9" fill="#24468E"/>
+  <path d="M10 24V12h6.8c3.8 0 5.2 1.7 5.2 3.9 0 1.4-.7 2.5-2 3.1 1.8.5 2.7 1.8 2.7 3.6 0 2.5-1.8 4.4-5.6 4.4H10Zm3.2-7h3.2c1.6 0 2.4-.6 2.4-1.7s-.8-1.6-2.4-1.6h-3.2V17Zm0 4.6h3.6c1.7 0 2.6-.7 2.6-1.9s-.9-1.9-2.6-1.9h-3.6v3.8Z" fill="white"/>
+  <text x="47" y="16" fill="#24468E" font-family="Inter, Arial" font-size="15" font-weight="700">BrahmForge</text>
+  <text x="47" y="29" fill="#55A8D2" font-family="Inter, Arial" font-size="10" font-weight="600">Hardware Intelligence OS</text>
+</svg>
