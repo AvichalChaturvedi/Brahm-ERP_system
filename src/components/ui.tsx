@@ -51,9 +51,9 @@ export const TabsContent = TabsPrimitive.Content;
 
 export function Heading({ title, sub }: { title: string; sub?: string }) {
   return (
-    <div className="space-y-1">
-      <h1 className="text-2xl font-semibold text-primary">{title}</h1>
-      {sub ? <p className="text-sm text-slate-600">{sub}</p> : null}
+    <div className="space-y-2">
+      <h1 className="text-3xl font-semibold tracking-tight text-ink md:text-4xl">{title}</h1>
+      {sub ? <p className="text-base text-ink-muted">{sub}</p> : null}
     </div>
   );
 }

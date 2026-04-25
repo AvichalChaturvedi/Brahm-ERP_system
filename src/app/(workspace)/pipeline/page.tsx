@@ -30,9 +30,10 @@ const lead = [
 export default function PipelinePage() {
   return (
     <div className="space-y-4">
-      <Heading title="Pipeline Analytics" />
+      <Heading title="Operational Intelligence Dashboard" sub="Analyze cost efficiency, production timelines, and supplier performance across all programs." />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="h-80">
+          <p className="mb-2 text-xs text-ink-muted">Monthly Procurement Spend</p>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={spend}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -45,6 +46,7 @@ export default function PipelinePage() {
           </ResponsiveContainer>
         </Card>
         <Card className="h-80">
+          <p className="mb-2 text-xs text-ink-muted">Production Lead Time Trends</p>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={lead}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -56,6 +58,11 @@ export default function PipelinePage() {
           </ResponsiveContainer>
         </Card>
       </div>
+      <Card>
+        <p className="text-sm text-ink-muted">Total Cost Savings Realized</p>
+        <p className="mt-1 text-xs text-ink-faint">Lead Time Reduction · Manufacturing Reliability Score</p>
+        <p className="mt-2 text-3xl font-semibold text-ink">96.4</p>
+      </Card>
     </div>
   );
 }

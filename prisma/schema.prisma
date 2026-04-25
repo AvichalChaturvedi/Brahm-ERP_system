@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Program {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  status      String      @default("active")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  uploads     BOMUpload[]
+}
+
+model BOMUpload {
+  id         String           @id @default(cuid())
+  programId  String
+  fileName   String
+  sourceType String
+  rawText    String
+  createdAt  DateTime         @default(now())
+  program    Program          @relation(fields: [programId], references: [id], onDelete: Cascade)
+  items      BOMItem[]
+  analyses   AnalysisResult[]
+
+  @@index([programId])
+}
+
+model BOMItem {
+  id               String   @id @default(cuid())
+  uploadId         String
+  partNumber       String
+  description      String?
+  quantity         Int
+  supplier         String?
+  unitCost         Float?
+  category         String?
+  supplyRisk       String
+  costRisk         String
+  availabilityRisk String
+  recommendation   String?
+  createdAt        DateTime @default(now())
+  upload           BOMUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+
+  @@index([uploadId])
+}
+
+model AnalysisResult {
+  id                 String   @id @default(cuid())
+  uploadId           String
+  provider           String
+  model              String
+  summary            String
+  criticalRisks      Json
+  costOpportunities  Json
+  recommendedActions Json
+  rawResponse        Json
+  createdAt          DateTime @default(now())
+  upload             BOMUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+
+  @@index([uploadId])
+}

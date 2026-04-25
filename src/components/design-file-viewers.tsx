@@ -10,7 +10,7 @@ export default function DesignFileViewers() {
   const [mode, setMode] = useState<ViewerMode>('none');
   const [stlUrl, setStlUrl] = useState<string>('');
   const [gerberSvg, setGerberSvg] = useState<string>('');
-  const [status, setStatus] = useState<string>('Upload Gerber ZIP or STL to preview securely.');
+  const [status, setStatus] = useState<string>('Ingest Gerber ZIP or STL to preview securely.');
 
   const stlStyle = useMemo(
     () => ({
@@ -69,7 +69,7 @@ export default function DesignFileViewers() {
     <Card>
       <div className="space-y-4">
         <div className="rounded-premium border border-primary/25 bg-black/25 p-4">
-          <label className="mb-2 block text-sm font-medium text-primary">Upload design file (Gerber GBR/GER or STL)</label>
+          <label className="mb-2 block text-sm font-medium text-primary">Select Design Files (Gerber GBR/GER or STL)</label>
           <input
             type="file"
             accept=".gbr,.ger,.gerber,.stl"
