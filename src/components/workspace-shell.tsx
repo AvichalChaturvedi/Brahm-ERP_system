@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import Image from 'next/image';
 import {
   LayoutDashboard,
+  FolderKanban,
   FlaskConical,
   FileSearch,
   PackageSearch,
@@ -13,8 +13,9 @@ import {
 } from 'lucide-react';
 
 const items = [
-  ['Dashboard', '/dashboard', LayoutDashboard],
-  ['New Project', '/projects/new', FlaskConical],
+  ['Overview', '/dashboard', LayoutDashboard],
+  ['Programs', '/projects', FolderKanban],
+  ['New Program', '/projects/new', FlaskConical],
   ['Design Review & DFM', '/design-review', FileSearch],
   ['BOM Analysis', '/bom-analysis', PackageSearch],
   ['Quote Optimization', '/quote-optimization', BadgeDollarSign],
@@ -25,14 +26,20 @@ const items = [
 
 export default function WorkspaceShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[270px_1fr]">
-      <aside className="border-r border-primary/10 bg-white/70 p-4 backdrop-blur">
-        <Link href="/" className="mb-6 flex items-center gap-2 font-semibold text-primary">
-          <Image src="/brahmforge-logo.svg" alt="BrahmForge" width={150} height={30} priority />
+    <div className="min-h-screen bg-background md:grid md:grid-cols-[340px_1fr]">
+      <aside className="border-r border-sidebarHover bg-sidebar px-6 py-7 text-sidebar-text">
+        <Link href="/" className="mb-8 flex items-center gap-3 rounded-xl px-1 py-1">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/10 ring-1 ring-white/20">
+            <span className="text-sm font-semibold tracking-tight text-white">BF</span>
+          </span>
+          <span className="block leading-tight">
+            <span className="block text-base font-semibold text-white">BrahmForge</span>
+            <span className="mt-0.5 block text-[11px] text-sidebar-text/70">Intelligent Manufacturing</span>
+          </span>
         </Link>
         <Link
           href="/"
-          className="mb-4 inline-flex rounded-premium bg-primary px-3 py-2 text-xs font-medium text-white"
+          className="mb-6 inline-flex w-full items-center justify-center rounded-xl border border-sidebarHover bg-sidebarHover px-3 py-2 text-xs font-medium text-sidebar-text"
         >
           Back to Home
         </Link>
@@ -41,14 +48,16 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-2 rounded-premium px-3 py-2 text-sm text-slate-700 transition hover:bg-primary/10"
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-sidebar-text transition hover:bg-sidebarHover"
             >
               <Icon className="h-4 w-4" /> {label}
             </Link>
           ))}
         </nav>
       </aside>
-      <main className="p-4 md:p-8">{children}</main>
+      <main className="p-5 md:p-8 xl:p-10">
+        <div className="mx-auto w-full max-w-[90rem]">{children}</div>
+      </main>
     </div>
   );
 }
