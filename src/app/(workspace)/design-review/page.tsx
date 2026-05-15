@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui';
 import { PageHeader, StatusBadge } from '@/components/premium';
 import DesignFileViewers from '@/components/design-file-viewers';
+import Link from 'next/link';
 
 export default function DesignReviewPage() {
   return (
@@ -18,8 +19,14 @@ export default function DesignReviewPage() {
             <p className="mt-1 text-xs text-ink-faint">Introduces elevated machining cost and rejection probability. Recommended adjustment: increase clearance and reroute high-current traces.</p>
           </div>
         </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/quote-optimization" className="rounded-xl bg-primary px-3 py-2 text-xs text-white">Get Quote</Link>
+          <a href="#design-viewer" className="rounded-xl border border-border bg-white px-3 py-2 text-xs text-ink">Get DFM Report</a>
+        </div>
       </Card>
-      <DesignFileViewers />
+      <div id="design-viewer">
+        <DesignFileViewers />
+      </div>
     </div>
   );
 }

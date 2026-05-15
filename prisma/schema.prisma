@@ -8,13 +8,93 @@ datasource db {
 }
 
 model Program {
-  id          String      @id @default(cuid())
+  id               String          @id @default(cuid())
+  workspaceId      String
+  createdById      String?
+  name             String
+  description      String?
+  customerUnit     String?
+  status           String          @default("planning")
+  selectedServices String[]        @default([])
+  targetCompletion DateTime?
+  allocatedBudget  Float?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  workspace        Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy        User?           @relation("ProgramCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  members          ProgramMember[]
+  uploads          BOMUpload[]
+  designFiles      DesignFile[]
+  dfmReviews       DFMReview[]
+  activityLogs     ActivityLog[]
+
+  @@index([workspaceId])
+}
+
+model User {
+  id                 String          @id @default(cuid())
+  email              String          @unique
+  passwordHash       String
+  displayName        String?
+  defaultWorkspaceId String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  defaultWorkspace   Workspace?      @relation("WorkspaceDefault", fields: [defaultWorkspaceId], references: [id], onDelete: SetNull)
+  memberships        ProgramMember[]
+  createdPrograms    Program[]       @relation("ProgramCreator")
+  sessions           UserSession[]
+  activityLogs       ActivityLog[]
+  designFiles        DesignFile[]     @relation("DesignFileUploader")
+}
+
+model Workspace {
+  id          String    @id @default(cuid())
   name        String
-  description String?
-  status      String      @default("active")
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  uploads     BOMUpload[]
+  ownerId     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  programs    Program[]
+  users       User[]    @relation("WorkspaceDefault")
+}
+
+model ProgramMember {
+  id        String   @id @default(cuid())
+  programId String
+  userId    String
+  role      String   @default("editor")
+  createdAt DateTime @default(now())
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([programId, userId])
+  @@index([userId])
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  workspaceId String?
+  programId  String?
+  userId     String?
+  action     String
+  message    String?
+  details    String?
+  createdAt  DateTime @default(now())
+  program    Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([programId])
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model BOMUpload {
@@ -64,4 +144,58 @@ model AnalysisResult {
   upload             BOMUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
 
   @@index([uploadId])
+}
+
+model DesignFile {
+  id         String             @id @default(cuid())
+  programId  String
+  fileName   String
+  originalName String?
+  fileType   String
+  fileExtension String?
+  fileUrl    String
+  storagePath String?
+  fileSize   Int?
+  uploadedBy String?
+  uploadedAt DateTime           @default(now())
+  createdAt  DateTime           @default(now())
+  program    Program            @relation(fields: [programId], references: [id], onDelete: Cascade)
+  uploader   User?              @relation("DesignFileUploader", fields: [uploadedBy], references: [id], onDelete: SetNull)
+  inspections GerberInspection[]
+  dfmReviews DFMReview[]
+
+  @@index([programId])
+}
+
+model GerberInspection {
+  id             String     @id @default(cuid())
+  designFileId   String
+  detectedLayers Json
+  missingLayers  Json
+  drillFiles     Json
+  rawMetadata    Json
+  createdAt      DateTime   @default(now())
+  designFile     DesignFile @relation(fields: [designFileId], references: [id], onDelete: Cascade)
+
+  @@index([designFileId])
+}
+
+model DFMReview {
+  id              String     @id @default(cuid())
+  programId       String
+  designFileId    String?
+  score           Int
+  riskLevel       String
+  summary         String
+  issues          Json
+  recommendations Json
+  provider        String
+  model           String
+  rawResponse     Json
+  createdAt       DateTime   @default(now())
+  program         Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
+  designFile      DesignFile? @relation(fields: [designFileId], references: [id], onDelete: SetNull)
+
+  @@index([programId])
+  @@index([designFileId])
 }

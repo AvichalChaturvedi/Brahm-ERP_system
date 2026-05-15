@@ -54,6 +54,12 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center gap-2">
             <Button asChild className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2 text-[#111827] shadow-none hover:bg-[#F9FAFB]">
+              <Link href="/auth/login">Login</Link>
+            </Button>
+            <Button asChild className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2 text-[#111827] shadow-none hover:bg-[#F9FAFB]">
+              <Link href="/auth/signup">Sign Up</Link>
+            </Button>
+            <Button asChild className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2 text-[#111827] shadow-none hover:bg-[#F9FAFB]">
               <Link href="/contact-sales">Book Demo</Link>
             </Button>
             <Button asChild className="rounded-xl bg-[#F97316] px-4 py-2 text-white hover:bg-[#EA580C]">
@@ -72,6 +78,7 @@ export default function LandingPage() {
             <p className="mt-2 text-base text-[#6B7280]">Ingest Data. Run Analysis. Optimize. Manufacture.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild className="rounded-xl bg-[#F97316] px-5 py-2.5 text-white hover:bg-[#EA580C]"><Link href="/projects/new">Get Started</Link></Button>
+              <Button asChild className="rounded-xl border border-[#E5E7EB] bg-white px-5 py-2.5 text-[#111827] shadow-none hover:bg-[#F9FAFB]"><Link href="/auth/signup">Create Account</Link></Button>
               <Button asChild className="rounded-xl border border-[#E5E7EB] bg-white px-5 py-2.5 text-[#111827] shadow-none hover:bg-[#F9FAFB]"><Link href="/contact-sales">Request Demo</Link></Button>
             </div>
           </div>

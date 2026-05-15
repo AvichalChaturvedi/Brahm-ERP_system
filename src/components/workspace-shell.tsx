@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { getCurrentUser } from '@/lib/auth';
 import {
   LayoutDashboard,
   FolderKanban,
@@ -24,7 +25,8 @@ const items = [
   ['Contact Sales', '/contact-sales', Phone],
 ] as const;
 
-export default function WorkspaceShell({ children }: { children: ReactNode }) {
+export default async function WorkspaceShell({ children }: { children: ReactNode }) {
+  const user = await getCurrentUser();
   return (
     <div className="min-h-screen bg-background md:grid md:grid-cols-[340px_1fr]">
       <aside className="border-r border-sidebarHover bg-sidebar px-6 py-7 text-sidebar-text">
@@ -34,7 +36,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
           </span>
           <span className="block leading-tight">
             <span className="block text-base font-semibold text-white">BrahmForge</span>
-            <span className="mt-0.5 block text-[11px] text-sidebar-text/70">Intelligent Manufacturing</span>
+            <span className="mt-0.5 block text-[11px] text-sidebar-text/70">{user?.displayName ? `${user.displayName} · Intelligent Manufacturing` : 'Intelligent Manufacturing'}</span>
           </span>
         </Link>
         <Link
